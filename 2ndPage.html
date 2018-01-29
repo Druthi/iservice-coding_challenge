@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      #map {
+        height: 100%;
+      }
+      html, body {
+        height: 75%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+      <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>
+    <div id="map"></div>
+    <a href ="index.html">Index</a>
+    <script>
+
+
+    var map;
+    var data;   
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyAx53BFT0fr7N3tA0aAdW2_Ir4xvmEw3uM",
+    authDomain: "iservicecodingch-1516729509638.firebaseapp.com",
+    databaseURL: "https://iservicecodingch-1516729509638.firebaseio.com",
+    projectId: "iservicecodingch-1516729509638",
+    storageBucket: "iservicecodingch-1516729509638.appspot.com",
+    messagingSenderId: "536149622585"
+  };
+  firebase.initializeApp(config);
+  var database = firebase.database();
+
+
+  function initMap() {  
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 4,
+        center: {lat: -25.363882, lng: 131.044922 }
+    });
+      
+    firebase.database().ref(`coordinates/lastSaved`).on('value', snap => {
+      data = snap.val()['latLngs'];
+      console.log(data);
+      var polygon = new google.maps.Polygon({paths: data});
+      google.maps.event.addListener(map, 'click', function(e) {
+        var resultColor =
+            google.maps.geometry.poly.containsLocation(e.latLng, polygon) ?
+            'blue' :
+            'red';
+        var resultPath =
+            google.maps.geometry.poly.containsLocation(e.latLng, polygon) ?
+            "m 0 -1 l 1 2 -2 0 z" :
+            google.maps.SymbolPath.CIRCLE;
+        new google.maps.Marker({
+          position: e.latLng,
+          map: map,
+          icon: {
+            path: resultPath,
+            fillColor: resultColor,
+            fillOpacity: .2,
+            strokeColor: 'white',
+            strokeWeight: .5,
+            scale: 10
+          }
+        });
+      });
+    });          
+  }
+      </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBk7Cs5ouI1TRG2aBoCZsl-xgoATc783e4&callback=initMap"
+    async defer></script>    
+  </body>
+</html>
